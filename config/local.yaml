@@ -1,0 +1,12 @@
+environment: "local"
+server_port: 9099
+db_config:
+  password: "postgres"
+  username: "admin"
+  name: "medpass-dev"
+  host: "localhost"
+  port: 5432
+storage_config:
+  bucket_url: "https://s3.fr-par.scw.cloud"
+  bucket_name: "medpass-dev"
+  region: "fr-par"

@@ -1,0 +1,8 @@
+version = 2
+
+[[dependencies]]
+name = "api"
+url = "github.com/StrDragos/mdp-api"
+protocol = "ssh"
+branch = "main"
+commit_hash = "f9f7b3e8e668da8a8b9b05c6635d22cf20d28b7d"

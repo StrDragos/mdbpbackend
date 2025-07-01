@@ -1,0 +1,9 @@
+name = "md-backend"
+description = "backend implementation for supporting queries from md-mobile"
+proto_out_dir = "proto"
+
+
+[api]
+url = "github.com/StrDragos/mdp-api"
+protocol = "ssh"
+branch = "main"

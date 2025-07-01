@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package medpass.records.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+// RecordType represents the different types of medical records
+enum RecordType {
+  RECORD_TYPE_UNSPECIFIED = 0;
+  RECORD_TYPE_APPOINTMENT = 1;
+  RECORD_TYPE_PRESCRIPTION = 2;
+  RECORD_TYPE_LAB_RESULT = 3;
+  RECORD_TYPE_VISIT = 4;
+  RECORD_TYPE_VACCINATION = 5;
+  RECORD_TYPE_IMAGING = 6;
+  RECORD_TYPE_OTHER = 7;
+}
+
+// Record represents a medical record in the system
+message Record {
+  string id = 1;
+  RecordType type = 2;
+  string title = 3;
+  string subtitle = 4;
+  google.protobuf.Timestamp date = 5;
+  repeated string tags = 6;
+  optional string document_url = 7;
+  optional string thumbnail_url = 8;
+  optional string scanned_document_path = 9;
+  optional string doctor_name = 10;
+  optional string facility_name = 11;
+  optional string notes = 12;
+} 
+
+// RecordFilter is used to filter records in queries
+message RecordFilter {
+  repeated RecordType types = 1;
+  repeated string tags = 2;
+  DateRange date_range = 3;
+  optional string search_query = 4;
+}
+// DateRange represents a time period for filtering
+message DateRange {
+  google.protobuf.Timestamp start = 1;
+  google.protobuf.Timestamp end = 2;
+}
+
+// RecordsService defines the gRPC service for managing medical records
+service RecordsService {
+  // CreateRecord creates a new medical record
+  rpc CreateRecord(CreateRecordRequest) returns (CreateRecordResponse) {}
+  
+  // GetRecord retrieves a specific record by ID
+  rpc GetRecord(GetRecordRequest) returns (GetRecordResponse) {}
+  
+  // ListRecords retrieves a list of records based on filter criteria
+  rpc ListRecords(ListRecordsRequest) returns (ListRecordsResponse) {}
+  
+  // UpdateRecord updates an existing record
+  rpc UpdateRecord(UpdateRecordRequest) returns (UpdateRecordResponse) {}
+  
+  // DeleteRecord deletes a record
+  rpc DeleteRecord(DeleteRecordRequest) returns (DeleteRecordResponse) {}
+}
+
+// CreateRecordInput contains only fields required to create a record
+message CreateRecordInput {
+  RecordType type = 1;
+  string title = 2;
+  string subtitle = 3;
+  google.protobuf.Timestamp date = 4;
+  repeated string tags = 5;
+  optional string facility_name = 7;
+  string user_id = 8;
+  bytes file_data = 9;
+}
+
+// CreateRecordRequest is the request message for creating a record
+message CreateRecordRequest {
+  CreateRecordInput record = 1;
+}
+
+message CreateRecordResponse {
+  Record record = 1;
+}
+
+// GetRecordRequest is the request message for getting a record
+message GetRecordRequest {
+  string record_id = 1;
+}
+
+message GetRecordResponse {
+  Record record = 1;
+}
+
+// ListRecordsRequest is the request message for listing records
+message ListRecordsRequest {
+  RecordFilter filter = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+// ListRecordsResponse is the response message for listing records
+message ListRecordsResponse {
+  repeated Record records = 1;
+  string next_page_token = 2;
+}
+
+// UpdateRecordRequest is the request message for updating a record
+message UpdateRecordRequest {
+  Record record = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message UpdateRecordResponse {
+  Record record = 1;
+}
+
+// DeleteRecordRequest is the request message for deleting a record
+message DeleteRecordRequest {
+  string record_id = 1;
+}
+
+message DeleteRecordResponse {
+  bool success = 1;
+}
