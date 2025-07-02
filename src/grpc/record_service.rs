@@ -1,15 +1,17 @@
-use crate::grpc::records;
+use crate::grpc::{records, response};
 use crate::grpc::records::{
     CreateRecordRequest, CreateRecordResponse, DeleteRecordRequest, DeleteRecordResponse,
     GetRecordRequest, GetRecordResponse, ListRecordsRequest, ListRecordsResponse,
     UpdateRecordRequest, UpdateRecordResponse,
 };
 use crate::handlers;
+use crate::grpc::convert::*;
 use std::sync::Arc;
 use tonic::{Request, Response, Status, async_trait};
 use tracing::error;
 use tracing::log::{Record, info};
-
+use crate::domain::user_record::UserRecord;
+use crate::error::AppError;
 // In src/lib.rs or src/main.rs
 
 // medpass.records.v1
@@ -35,13 +37,11 @@ impl records::records_service_server::RecordsService for RecordServiceImpl {
     ) -> Result<Response<CreateRecordResponse>, Status> {
         info!("Grpc request received");
         let create_record_req = request.into_inner();
-        let saved_record = self.records_service.save(create_record_req).await;
-        //TODO map error to status internal
-        let  _ = saved_record
-            .map_err(|e| error!("Failed to save record: {}", e.to_string().replace("\n", "")));
-        //For now this is default response
-        Ok(Response::new(CreateRecordResponse::default()))
+        let handler_result = self.records_service.save(create_record_req).await;
+        
+        response::to_response(handler_result)
     }
+
 
     async fn get_record(
         &self,

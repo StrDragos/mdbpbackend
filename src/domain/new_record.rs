@@ -1,10 +1,9 @@
 use crate::domain::enums::RecordType;
+use crate::error::AppError;
 use crate::grpc::records::CreateRecordInput;
 use crate::grpc::records::RecordType as RecordTypeGrpc;
 use crate::grpc::transformations::timestamp_to_chrono;
 use chrono::DateTime;
-use uuid::Uuid;
-use crate::error::AppError;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct NewRecord {

@@ -7,6 +7,7 @@ use std::sync::Arc;
 use tonic::async_trait;
 use tracing::info;
 use tracing::log::error;
+use crate::domain::user_record::UserRecord;
 use crate::error::AppError;
 
 #[async_trait]
@@ -27,7 +28,7 @@ impl RecordHandlerImpl {
         }
     }
 
-    pub async fn save(&self, create: CreateRecordRequest) -> Result<(), AppError> {
+    pub async fn save(&self, create: CreateRecordRequest) -> Result<UserRecord, AppError> {
         info!("Received request");
         match create.record {
             Some(input_record) => {
@@ -48,14 +49,16 @@ impl RecordHandlerImpl {
                     .await?;
 
                 match self.records_repo.save(file_metadata).await {
-                    Ok(_) => info!("Record saved"),
+                    Ok(result) => {
+                        info!("Record saved");
+                        Ok(result)
+                    },
                     Err(e) => {
-                        error!("Failed to save record {}", e);
-                        self.storage.delete_file(&file_name).await?
+                        error!("Failed to save record {}, we will rollback stored record", e);
+                        self.storage.delete_file(&file_name).await?;
+                        Err(AppError::Internal("Failed to save metadata".to_string()))
                     },
                 }
-
-                Ok(())
             }
             None => Err(AppError::Validation("record is a required value".to_string())),
         }

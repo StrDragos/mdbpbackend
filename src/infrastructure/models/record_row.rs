@@ -3,6 +3,7 @@ use crate::domain::new_record::NewRecord;
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
 use uuid::Uuid;
+use crate::domain::user_record::UserRecord;
 
 #[derive(FromRow, Debug)]
 pub struct RecordRow {
@@ -64,5 +65,21 @@ mod test {
         assert_eq!(record_row.created_at, DateTime::UNIX_EPOCH);
         assert_eq!(record_row.facility_name, "Test facility");
         assert_eq!(record_row.file_name, "Test");
+    }
+}
+
+impl From<RecordRow> for UserRecord {
+    fn from(value: RecordRow) -> Self {
+        Self {
+            id: value.id,
+            title: value.title,
+            subtitle: value.subtitle,
+            record_type: value.record_type,
+            create_date:value.created_at,
+            tags: value.tags,
+            facility_name:value.facility_name,
+            user_id: value.user_id,
+            stored_resource: value.file_name
+        }
     }
 }

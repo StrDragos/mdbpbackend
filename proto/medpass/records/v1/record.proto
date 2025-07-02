@@ -25,11 +25,8 @@ message Record {
   string subtitle = 4;
   google.protobuf.Timestamp date = 5;
   repeated string tags = 6;
-  optional string document_url = 7;
-  optional string thumbnail_url = 8;
-  optional string scanned_document_path = 9;
-  optional string doctor_name = 10;
-  optional string facility_name = 11;
+  string document_url = 7;
+  string facility_name = 11;
   optional string notes = 12;
 } 
 

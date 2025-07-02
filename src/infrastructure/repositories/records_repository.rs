@@ -4,13 +4,13 @@ use sqlx::PgPool;
 use std::sync::Arc;
 use tonic::async_trait;
 use tracing::error;
-use tracing::field::debug;
 use tracing::log::debug;
+use crate::domain::user_record::UserRecord;
 use crate::error::AppError;
 
 #[async_trait]
 pub trait RecordsRepository: Send + Sync {
-    async fn save(&self, record: NewRecord) -> Result<(), AppError>;
+    async fn save(&self, record: NewRecord) -> Result<UserRecord, AppError>;
     async fn get(&self) -> Result<String, AppError>;
     async fn delete(&self) -> Result<String, AppError>;
     async fn update(&self, record: String) -> Result<(),  AppError>;
@@ -21,7 +21,7 @@ pub struct RecordsRepositoryImpl {
 }
 #[async_trait]
 impl RecordsRepository for RecordsRepositoryImpl {
-    async fn save(&self, record: NewRecord) -> Result<(), AppError> {
+    async fn save(&self, record: NewRecord) -> Result<UserRecord, AppError> {
 
         let row: RecordRow = record.into();
         debug!("Saving {:#?}", row);
@@ -68,8 +68,7 @@ impl RecordsRepository for RecordsRepositoryImpl {
                 error!(error= ?err, file_location = %row.file_name, user_id= %row.user_id, "Failed to save");
                 AppError::DatabaseError("could not save new record".to_string())
             })
-            //TODO return saved record
-            .map(|_| ())
+            .map(|row| row.into())
     }
 
     async fn get(&self) -> Result<String, AppError> {
