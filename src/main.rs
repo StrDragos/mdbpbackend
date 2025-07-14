@@ -1,16 +1,17 @@
 mod config;
 mod domain;
+mod error;
 mod grpc;
 mod handlers;
 mod infrastructure;
-mod error;
 
 use crate::config::application::{AppConfig, AppEnv};
 use crate::grpc::record_service::RecordServiceImpl;
 use crate::handlers::records::RecordHandlerImpl;
+use crate::infrastructure::db;
+use crate::infrastructure::db::connection;
 use crate::infrastructure::files_storage::FilesStorageLive;
 use crate::infrastructure::repositories::records_repository::RecordsRepositoryImpl;
-use crate::infrastructure::db;
 use aws_config::BehaviorVersion;
 use aws_config::profile::load;
 use aws_sdk_s3::Client;
@@ -18,17 +19,16 @@ use std::sync::Arc;
 use tonic::transport::Server;
 use tracing::{debug, info};
 use tracing_subscriber::fmt::format;
-use crate::infrastructure::db::connection;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = AppConfig::build()?;
-    
+
     //Repositories
     let conn_pool = connection(&config.db_config).await;
     let db_connection = Arc::new(conn_pool);
     let records_repository = Arc::new(RecordsRepositoryImpl::new(db_connection.clone()));
-    
+
     let storage = FilesStorageLive::from_config(&config.storage_config).await;
     let storage_arc = Arc::new(storage);
 

@@ -9,5 +9,7 @@ pub enum AppError {
     #[error("Internal error: {0}")]
     Internal(String),
     #[error("Storage error: {0}")]
-    StorageError(String)
+    StorageError(String),
+    #[error("User {0} already exists")]
+    UserAlreadyExists(String)
 }

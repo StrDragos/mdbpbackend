@@ -48,7 +48,7 @@ pub struct DbConfig {
     password: String,
     name: String,
     host: String,
-    port: u32
+    port: u32,
 }
 
 impl DbConfig {

@@ -1,5 +1,5 @@
-use uuid::Uuid;
 use crate::domain::enums::RecordType;
+use uuid::Uuid;
 
 pub struct UserRecord {
     pub id: Uuid,
@@ -10,5 +10,5 @@ pub struct UserRecord {
     pub tags: Vec<String>,
     pub facility_name: String,
     pub user_id: String,
-    pub stored_resource: String
+    pub stored_resource: String,
 }

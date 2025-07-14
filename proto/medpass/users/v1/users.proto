@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package medpass.users.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// Request message for registering a new user
+message RegisterRequest {
+  string email = 1;
+  string name = 2;
+  string user_id = 3;
+  google.protobuf.Timestamp date_of_birth = 4;
+}
+
+// Response message for registering a new user
+message RegisterResponse {
+  string user_id = 1;
+  string email = 2;
+  string name = 3;
+  google.protobuf.Timestamp date_of_birth = 4;
+}
+
+// UserService provides user-related operations
+service UserService {
+  // Registers a new user
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+}

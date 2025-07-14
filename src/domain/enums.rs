@@ -1,7 +1,7 @@
+use crate::error::AppError;
 use crate::grpc::records::RecordType as GrpcRecordType;
 use sqlx::Type;
 use strum_macros::{Display, EnumString};
-use crate::error::AppError;
 
 #[derive(Debug, Clone, PartialEq, Eq, Type, EnumString, Display)]
 #[sqlx(type_name = "TEXT")]
@@ -22,8 +22,12 @@ impl TryFrom<GrpcRecordType> for RecordType {
             GrpcRecordType::Visit => Ok(RecordType::Visit),
             GrpcRecordType::Imaging => Ok(RecordType::Imaging),
             GrpcRecordType::Other => Ok(RecordType::Other),
-            GrpcRecordType::Unspecified => Err(AppError::Validation("RecordType Unspecified".to_string())),
-            _ => Err(AppError::Validation("RecordType not yet supported".to_string())),
+            GrpcRecordType::Unspecified => {
+                Err(AppError::Validation("RecordType Unspecified".to_string()))
+            }
+            _ => Err(AppError::Validation(
+                "RecordType not yet supported".to_string(),
+            )),
         }
     }
 }

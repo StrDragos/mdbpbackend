@@ -1,19 +1,19 @@
 use crate::domain::new_record::NewRecord;
+use crate::domain::user_record::UserRecord;
+use crate::error::AppError;
 use crate::infrastructure::models::record_row::RecordRow;
 use sqlx::PgPool;
 use std::sync::Arc;
 use tonic::async_trait;
 use tracing::error;
 use tracing::log::debug;
-use crate::domain::user_record::UserRecord;
-use crate::error::AppError;
 
 #[async_trait]
 pub trait RecordsRepository: Send + Sync {
     async fn save(&self, record: NewRecord) -> Result<UserRecord, AppError>;
     async fn get(&self) -> Result<String, AppError>;
     async fn delete(&self) -> Result<String, AppError>;
-    async fn update(&self, record: String) -> Result<(),  AppError>;
+    async fn update(&self, record: String) -> Result<(), AppError>;
 }
 
 pub struct RecordsRepositoryImpl {
@@ -22,7 +22,6 @@ pub struct RecordsRepositoryImpl {
 #[async_trait]
 impl RecordsRepository for RecordsRepositoryImpl {
     async fn save(&self, record: NewRecord) -> Result<UserRecord, AppError> {
-
         let row: RecordRow = record.into();
         debug!("Saving {:#?}", row);
 
@@ -59,7 +58,6 @@ impl RecordsRepository for RecordsRepositoryImpl {
             .bind(&row.title)
             .bind(&row.subtitle)
             .bind(&row.tags);
-
 
         query_builder
             .fetch_one(&*self.pool)

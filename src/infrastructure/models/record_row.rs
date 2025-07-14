@@ -1,9 +1,9 @@
 use crate::domain::enums::RecordType;
 use crate::domain::new_record::NewRecord;
+use crate::domain::user_record::UserRecord;
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
 use uuid::Uuid;
-use crate::domain::user_record::UserRecord;
 
 #[derive(FromRow, Debug)]
 pub struct RecordRow {
@@ -41,8 +41,7 @@ mod test {
     use crate::domain::enums::RecordType;
     use crate::domain::new_record::NewRecord;
     use crate::infrastructure::models::record_row::RecordRow;
-    use chrono::DateTime;
-    use uuid::Uuid;
+    use chrono::{DateTime, Utc};
 
     #[test]
     fn test_record_row_from_new_record() {
@@ -50,7 +49,7 @@ mod test {
             title: "Test".to_string(),
             subtitle: "Test".to_string(),
             record_type: RecordType::Other,
-            create_date: DateTime::UNIX_EPOCH,
+            create_date: Utc::now(),
             tags: Vec::new(),
             facility_name: "Test facility".to_string(),
             user_id: "test_user_id".to_string(),
@@ -75,11 +74,11 @@ impl From<RecordRow> for UserRecord {
             title: value.title,
             subtitle: value.subtitle,
             record_type: value.record_type,
-            create_date:value.created_at,
+            create_date: value.created_at,
             tags: value.tags,
-            facility_name:value.facility_name,
+            facility_name: value.facility_name,
             user_id: value.user_id,
-            stored_resource: value.file_name
+            stored_resource: value.file_name,
         }
     }
 }

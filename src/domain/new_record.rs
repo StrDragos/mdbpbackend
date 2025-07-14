@@ -26,7 +26,9 @@ impl NewRecord {
 
         let create_date = input
             .date
-            .ok_or(AppError::Validation("Date is required for new records".to_string()))
+            .ok_or(AppError::Validation(
+                "Date is required for new records".to_string(),
+            ))
             .and_then(|t| timestamp_to_chrono(t))?;
 
         Ok(NewRecord {

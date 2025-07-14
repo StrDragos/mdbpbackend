@@ -1,4 +1,5 @@
 use crate::config::application::StorageConfig;
+use crate::error::AppError;
 use aws_config::BehaviorVersion;
 use aws_sdk_s3::Client;
 use aws_sdk_s3::operation::head_object::HeadObjectError;
@@ -6,7 +7,6 @@ use aws_sdk_s3::primitives::ByteStream;
 use bytes;
 use tonic::async_trait;
 use tracing::{debug, error, info};
-use crate::error::AppError;
 
 #[async_trait]
 pub trait FilesStorage: Send + Sync {
@@ -63,8 +63,10 @@ impl FilesStorage for FilesStorageLive {
         {
             Ok(_) => {
                 debug!("File {} already exists", &name);
-                Err(AppError::StorageError("Medical document could not be stored due to duplication".to_string()))
-            },
+                Err(AppError::StorageError(
+                    "Medical document could not be stored due to duplication".to_string(),
+                ))
+            }
             Err(e) => {
                 let service_error = e.as_service_error();
                 if let Some(HeadObjectError::NotFound(_)) = service_error {
@@ -94,10 +96,16 @@ impl FilesStorage for FilesStorageLive {
     }
 
     async fn delete_file(&self, file_name: &str) -> Result<(), AppError> {
-        self.client.delete_object().key(file_name).bucket(&self.bucket_name).send().await.map_err(|e| {
-            error!("Failed to delete object: {}", e);
-            AppError::StorageError("Failed to delete file".to_string())
-        })
+        self.client
+            .delete_object()
+            .key(file_name)
+            .bucket(&self.bucket_name)
+            .send()
+            .await
+            .map_err(|e| {
+                error!("Failed to delete object: {}", e);
+                AppError::StorageError("Failed to delete file".to_string())
+            })
             .map(|_| info!("File {} deleted", &file_name))
     }
 }
