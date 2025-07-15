@@ -11,7 +11,7 @@ pub enum AppEnv {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct AppConfig {
-    pub server_port: u16,
+    pub server_port: Option<u16>,
     pub environment: AppEnv,
     pub db_config: DbConfig,
     pub storage_config: StorageConfig,

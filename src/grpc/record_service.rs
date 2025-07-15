@@ -7,33 +7,38 @@ use crate::grpc::{records, response};
 use crate::handlers;
 use std::sync::Arc;
 use tonic::{Request, Response, Status, async_trait};
+use tonic::codegen::InterceptedService;
+use tonic::service::Interceptor;
 use tracing::log::info;
-// In src/lib.rs or src/main.rs
+use crate::grpc::authorization::AuthInterceptor;
+use crate::grpc::records::records_service_server::{RecordsService, RecordsServiceServer};
 
-// medpass.records.v1
+#[derive(Clone)]
 pub struct RecordServiceImpl {
-    records_service: Arc<handlers::records::RecordHandlerImpl>,
+    handler: Arc<dyn handlers::records::RecordHandlers>,
 }
 
 impl RecordServiceImpl {
+    pub fn new(handler: Arc<handlers::records::RecordHandlerImpl>) -> Self {
+        Self { handler }
+    }
     pub fn server(
-        records_service: Arc<handlers::records::RecordHandlerImpl>,
-    ) -> records::records_service_server::RecordsServiceServer<Self> {
-        records::records_service_server::RecordsServiceServer::new(RecordServiceImpl {
-            records_service,
-        })
+        records_service: Arc<handlers::records::RecordHandlerImpl>
+    ) -> InterceptedService<RecordsServiceServer<RecordServiceImpl>, AuthInterceptor>  {
+        let service =  RecordServiceImpl::new(records_service.clone());
+        RecordsServiceServer::with_interceptor(service, AuthInterceptor)
     }
 }
 
 #[async_trait]
-impl records::records_service_server::RecordsService for RecordServiceImpl {
+impl RecordsService for RecordServiceImpl {
     async fn create_record(
         &self,
         request: Request<CreateRecordRequest>,
     ) -> Result<Response<CreateRecordResponse>, Status> {
         info!("Grpc request received");
         let create_record_req = request.into_inner();
-        let handler_result = self.records_service.save(create_record_req).await;
+        let handler_result = self.handler.save(create_record_req).await;
         response::to_response(handler_result)
     }
 

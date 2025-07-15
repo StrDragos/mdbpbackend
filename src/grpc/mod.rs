@@ -1,6 +1,7 @@
 pub mod convert;
 pub mod record_service;
 pub mod user_service;
+pub mod authorization;
 
 pub mod records {
     include!(concat!(

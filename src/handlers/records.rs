@@ -11,10 +11,11 @@ use tracing::info;
 use tracing::log::error;
 
 #[async_trait]
-trait RecordHandlers: Send + Sync {
-    async fn save(&self, create: CreateRecordRequest);
+pub trait RecordHandlers: Send + Sync {
+    async fn save(&self, create: CreateRecordRequest) -> Result<UserRecord, AppError>;
 }
 
+#[derive(Clone)]
 pub struct RecordHandlerImpl {
     storage: Arc<dyn FilesStorage>,
     records_repo: Arc<dyn RecordsRepository>,
@@ -28,7 +29,17 @@ impl RecordHandlerImpl {
         }
     }
 
-    pub async fn save(&self, create: CreateRecordRequest) -> Result<UserRecord, AppError> {
+    fn compute_file_name(record_data: &[u8], user_id: &str) -> String {
+        let hasher = Sha256::digest(record_data);
+        let name = hex::encode(hasher);
+        //TODO handle file type (.pdf, .jpg ...etc)
+        format!("{}/{}.pdf", user_id, name)
+    }
+}
+
+#[async_trait]
+impl RecordHandlers for RecordHandlerImpl {
+    async fn save(&self, create: CreateRecordRequest) -> Result<UserRecord, AppError> {
         info!("Received request");
         match create.record {
             Some(input_record) => {
@@ -64,12 +75,5 @@ impl RecordHandlerImpl {
                 "record is a required value".to_string(),
             )),
         }
-    }
-
-    fn compute_file_name(record_data: &[u8], user_id: &str) -> String {
-        let hasher = Sha256::digest(record_data);
-        let name = hex::encode(hasher);
-        //TODO handle file type (.pdf, .jpg ...etc)
-        format!("{}/{}.pdf", user_id, name)
     }
 }
