@@ -8,7 +8,6 @@ use crate::handlers;
 use std::sync::Arc;
 use tonic::{Request, Response, Status, async_trait};
 use tonic::codegen::InterceptedService;
-use tonic::service::Interceptor;
 use tracing::log::info;
 use crate::grpc::authorization::AuthInterceptor;
 use crate::grpc::records::records_service_server::{RecordsService, RecordsServiceServer};
